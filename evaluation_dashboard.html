@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Response Evaluation Dashboard</title>
+</head>
+<body>
+    <h1>AI Response Evaluation</h1>
+    
+    <div>
+        <h3>Test Input</h3>
+        <textarea id="testInput" placeholder="Enter test transcript..."></textarea>
+        <button onclick="testResponse()">Test Response</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        async function testResponse() {
+            const input = document.getElementById('testInput').value;
+            const response = await fetch('/chat', {
+                method: 'POST',
+                body: new FormData({
+                    transcript: input,
+                    intent: 'general_conversation',
+                    emotion: 'neutral',
+                    history: '[]'
+                })
+            });
+            
+            const data = await response.json();
+            displayResults(data);
+        }
+        
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <h3>Results</h3>
+                <div>
+                    <h4>GPT-4o Response:</h4>
+                    <p>${data.gpt4o_response}</p>
+                    <p>Length: ${data.gpt4o_response.length} characters</p>
+                </div>
+                <div>
+                    <h4>Claude Response:</h4>
+                    <p>${data.claude_opus_response}</p>
+                    <p>Length: ${data.claude_opus_response.length} characters</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html> 

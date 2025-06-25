@@ -1,0 +1,7 @@
+__pycache__
+*.pyc
+.env
+.DS_Store
+.dockerignore
+Dockerfile
+README.md 
