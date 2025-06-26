@@ -36,19 +36,31 @@ export default async function handler(req, res) {
       },
     };
 
-    // Add body for non-GET requests
-    if (req.method !== 'GET' && req.body) {
-      requestOptions.body = req.body;
+    // Forward the request body and content-type
+    if (req.method === 'POST') {
+      // Get the raw body
+      const chunks = [];
+      for await (const chunk of req) {
+        chunks.push(chunk);
+      }
+      const rawBody = Buffer.concat(chunks);
+      
+      requestOptions.body = rawBody;
+      
+      // Preserve the original content-type header
+      if (req.headers['content-type']) {
+        requestOptions.headers['content-type'] = req.headers['content-type'];
+      }
     }
 
     // Forward the request to Cloud Run
     const response = await fetch(targetUrl, requestOptions);
 
     // Get response data
-    const contentType = response.headers.get('content-type');
+    const responseContentType = response.headers.get('content-type');
     let data;
     
-    if (contentType && contentType.includes('application/json')) {
+    if (responseContentType && responseContentType.includes('application/json')) {
       data = await response.json();
     } else {
       data = await response.arrayBuffer();
@@ -67,7 +79,7 @@ export default async function handler(req, res) {
     }
 
     // Send response
-    if (contentType && contentType.includes('application/json')) {
+    if (responseContentType && responseContentType.includes('application/json')) {
       res.json(data);
     } else {
       res.send(Buffer.from(data));
