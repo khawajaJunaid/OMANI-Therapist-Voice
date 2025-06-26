@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import VoiceRecorder from './VoiceRecorder';
-import AuthWrapper from './AuthWrapper';
 
 function App() {
   const [chat, setChat] = useState([]); // { sender: 'user'|'bot', text: string }
@@ -45,7 +44,19 @@ function App() {
       console.log('Backend response data:', data);
       
       const transcript = data.transcript;
-      const botResponse = data.bot_response;
+      let botResponse = '';
+      let audioContent = '';
+      
+      // Handle different response structures based on model selection
+      if (selectedModel === 'both') {
+        // For both models, use GPT-4o response as primary, but show both
+        botResponse = `GPT-4o: ${data.gpt4o_response}\n\nClaude: ${data.claude_response}`;
+        audioContent = data.gpt4o_audio || data.claude_audio; // Use first available audio
+      } else {
+        // For single model
+        botResponse = data.bot_response;
+        audioContent = data.audio_content;
+      }
       
       // Add both user and bot messages to chat
       setChat((prev) => [...prev, 
@@ -54,8 +65,8 @@ function App() {
       ]);
       
       // Convert hex audio content back to blob and play
-      if (data.audio_content) {
-        const audioBytes = new Uint8Array(data.audio_content.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+      if (audioContent) {
+        const audioBytes = new Uint8Array(audioContent.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
         const audioBlob = new Blob([audioBytes], { type: 'audio/mpeg' });
         const audioUrl = URL.createObjectURL(audioBlob);
         setBotAudioUrl(audioUrl);
@@ -79,7 +90,7 @@ function App() {
     }
   };
 
-  const VoiceBotApp = () => (
+  return (
     <div style={{ fontFamily: 'sans-serif', textAlign: 'center', marginTop: 40, background: '#f4f8fb', minHeight: '100vh' }}>
       <h1>OMANI-Therapist-Voice</h1>
       <p>Direct Audio-to-Audio Omani Arabic Mental Health Chatbot</p>
@@ -160,12 +171,6 @@ function App() {
         )}
       </div>
     </div>
-  );
-
-  return (
-    <AuthWrapper>
-      <VoiceBotApp />
-    </AuthWrapper>
   );
 }
 
