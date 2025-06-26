@@ -1,5 +1,12 @@
 import { GoogleAuth } from 'google-auth-library';
 
+// Configure the API route to handle raw bodies
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export default async function handler(req, res) {
   try {
     // Get Cloud Run URL from environment variable
@@ -27,26 +34,29 @@ export default async function handler(req, res) {
     // Construct the full URL for the audio-chat endpoint
     const targetUrl = `${cloudRunUrl}/audio-chat`;
 
-    // Prepare the request to Cloud Run
-    const requestOptions = {
-      method: req.method,
-      headers: {
-        ...headers, // This includes the Authorization: Bearer <token>
-        'host': new URL(cloudRunUrl).host, // Set correct host header
-        'Content-Type': req.headers['content-type'] || 'application/json',
-      },
-    };
-
     // If it's a POST request with form data, handle it properly
     if (req.method === 'POST' && req.headers['content-type']?.includes('multipart/form-data')) {
+      // Read the raw body stream
+      const chunks = [];
+      req.on('data', chunk => chunks.push(chunk));
+      
+      await new Promise((resolve, reject) => {
+        req.on('end', resolve);
+        req.on('error', reject);
+      });
+      
+      const rawBody = Buffer.concat(chunks);
+
       // For multipart form data, we need to forward the raw body
       const response = await fetch(targetUrl, {
         method: 'POST',
         headers: {
           ...headers,
           'host': new URL(cloudRunUrl).host,
+          'Content-Type': req.headers['content-type'],
+          'Content-Length': rawBody.length.toString(),
         },
-        body: req.body, // Forward the raw body
+        body: rawBody, // Forward the raw body
       });
 
       // Get the response data
@@ -56,6 +66,15 @@ export default async function handler(req, res) {
       return res.status(response.status).json(responseData);
     } else {
       // For other request types, forward the body as JSON
+      const requestOptions = {
+        method: req.method,
+        headers: {
+          ...headers,
+          'host': new URL(cloudRunUrl).host,
+          'Content-Type': req.headers['content-type'] || 'application/json',
+        },
+      };
+
       if (req.body) {
         requestOptions.body = JSON.stringify(req.body);
       }
