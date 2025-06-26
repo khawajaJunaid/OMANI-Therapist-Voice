@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import VoiceRecorder from './VoiceRecorder';
+import AuthWrapper from './AuthWrapper';
 
 function App() {
   const [chat, setChat] = useState([]); // { sender: 'user'|'bot', text: string }
@@ -15,14 +16,14 @@ function App() {
     setBotAudioUrl(null);
     
     try {
-      // Send audio directly to the new audio-chat endpoint
+      // Send audio to the Vercel proxy endpoint
       const formData = new FormData();
       formData.append('audio', audioBlob, 'audio.webm');
       formData.append('history', JSON.stringify(chat));
       formData.append('model', selectedModel);
       
-      console.log('Sending audio to backend...');
-      let response = await fetch('http://localhost:8000/audio-chat', {
+      console.log('Sending audio to Vercel proxy...');
+      let response = await fetch('/api/proxy', {
         method: 'POST',
         body: formData,
       });
@@ -69,7 +70,7 @@ function App() {
       console.error('Error in handleRecordingComplete:', err);
       let details = err.message;
       if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
-        details = 'Network error: Could not connect to backend server. Please ensure the backend is running on localhost:8000';
+        details = 'Network error: Could not connect to backend server. Please ensure the backend is running and accessible.';
       }
       if (err.stack) details += '\n' + err.stack;
       setError('Error: ' + details);
@@ -78,7 +79,7 @@ function App() {
     }
   };
 
-  return (
+  const VoiceBotApp = () => (
     <div style={{ fontFamily: 'sans-serif', textAlign: 'center', marginTop: 40, background: '#f4f8fb', minHeight: '100vh' }}>
       <h1>OMANI-Therapist-Voice</h1>
       <p>Direct Audio-to-Audio Omani Arabic Mental Health Chatbot</p>
@@ -159,6 +160,12 @@ function App() {
         )}
       </div>
     </div>
+  );
+
+  return (
+    <AuthWrapper>
+      <VoiceBotApp />
+    </AuthWrapper>
   );
 }
 
