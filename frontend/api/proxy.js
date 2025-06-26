@@ -19,17 +19,18 @@ export default async function handler(req, res) {
     // Generate Google ID token for authentication
     const auth = new GoogleAuth({
       credentials: JSON.parse(serviceAccountKey),
-      scopes: 'https://www.googleapis.com/auth/cloud-platform',
     });
     
     const client = await auth.getIdTokenClient(cloudRunUrl);
     const headers = await client.getRequestHeaders();
 
+    // Construct the full URL for the audio-chat endpoint
+    const targetUrl = `${cloudRunUrl}/audio-chat`;
+
     // Prepare the request to Cloud Run
     const requestOptions = {
       method: req.method,
       headers: {
-        ...req.headers,
         ...headers, // This includes the Authorization: Bearer <token>
         'host': new URL(cloudRunUrl).host, // Set correct host header
       },
@@ -41,7 +42,7 @@ export default async function handler(req, res) {
     }
 
     // Forward the request to Cloud Run
-    const response = await fetch(cloudRunUrl, requestOptions);
+    const response = await fetch(targetUrl, requestOptions);
 
     // Get response data
     const contentType = response.headers.get('content-type');
