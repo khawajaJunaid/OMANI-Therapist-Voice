@@ -4,8 +4,7 @@
   "framework": "create-react-app",
   "functions": {
     "api/proxy.js": {
-      "maxDuration": 30,
-      "bodyParser": false
+      "maxDuration": 30
     }
   }
 } 

@@ -36,21 +36,47 @@ export default async function handler(req, res) {
       },
     };
 
-    // Forward the request body and content-type
+    // Handle multipart form data
     if (req.method === 'POST') {
-      // Get the raw body
-      const chunks = [];
-      for await (const chunk of req) {
-        chunks.push(chunk);
-      }
-      const rawBody = Buffer.concat(chunks);
+      // Vercel automatically parses multipart data, so we need to reconstruct it
+      const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
+      const formData = [];
       
-      requestOptions.body = rawBody;
-      
-      // Preserve the original content-type header
-      if (req.headers['content-type']) {
-        requestOptions.headers['content-type'] = req.headers['content-type'];
+      // Add audio file if present
+      if (req.files && req.files.audio) {
+        const audioFile = req.files.audio;
+        formData.push(`--${boundary}`);
+        formData.push('Content-Disposition: form-data; name="audio"; filename="audio.webm"');
+        formData.push('Content-Type: audio/webm');
+        formData.push('');
+        formData.push(audioFile.data);
       }
+      
+      // Add history if present
+      if (req.body && req.body.history) {
+        formData.push(`--${boundary}`);
+        formData.push('Content-Disposition: form-data; name="history"');
+        formData.push('');
+        formData.push(req.body.history);
+      }
+      
+      // Add model if present
+      if (req.body && req.body.model) {
+        formData.push(`--${boundary}`);
+        formData.push('Content-Disposition: form-data; name="model"');
+        formData.push('');
+        formData.push(req.body.model);
+      }
+      
+      formData.push(`--${boundary}--`);
+      
+      // Join form data parts
+      const formDataBuffer = Buffer.concat(formData.map(part => 
+        typeof part === 'string' ? Buffer.from(part + '\r\n') : part
+      ));
+      
+      requestOptions.body = formDataBuffer;
+      requestOptions.headers['content-type'] = `multipart/form-data; boundary=${boundary}`;
     }
 
     // Forward the request to Cloud Run
