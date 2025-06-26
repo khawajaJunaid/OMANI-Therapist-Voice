@@ -15,7 +15,7 @@ A real-time, voice-only Omani Arabic mental health chatbot with culturally sensi
 
 ### Backend
 - FastAPI (Python)
-- Integrates with Google Cloud STT (Omani Arabic), GPT-4o, Claude Opus 4, and TTS
+- Integrates with GPT-4o, Claude Opus 4
 
 ## Setup
 
