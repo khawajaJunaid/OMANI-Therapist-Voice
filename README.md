@@ -101,7 +101,24 @@ The application is deployed using a secure, scalable architecture:
 
 - ✅ **Authenticated Cloud Run Service**: Only accepts requests with valid Google ID tokens
 - ✅ **Secure Proxy**: Vercel function adds authentication headers
-- ✅ **Environment Variables**: Sensitive keys stored securely
+
+
+## 📊 System Architecture
+
+### Architecture Diagram
+
+![System Architecture](./Architecture%20diagram.png)
+
+*The diagram shows the complete system flow from user interaction through Vercel frontend, proxy authentication, Google Cloud Run backend, and AI service integration.*
+
+### Key Architecture Components
+
+- **User Interface**: Web browser with voice recording capabilities
+- **Frontend (Vercel)**: React app with proxy function for authentication
+- **Backend (Cloud Run)**: FastAPI service with authenticated endpoints
+- **AI Services**: OpenAI (Whisper, GPT-4o, TTS-1) and Anthropic (Claude 3 Opus)
+- **Authentication**: Google ID tokens via service account
+- **Data Flow**: Secure audio processing pipeline with real-time responses
 
 ## 📁 Project Structure
 
