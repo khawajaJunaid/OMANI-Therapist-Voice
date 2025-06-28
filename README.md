@@ -189,3 +189,8 @@ GOOGLE_APPLICATION_CREDENTIALS=./gcloud-key.json
 
 - **Frontend Setup**: See `/frontend/README.md`
 - **Backend Setup**: See `/backend/README.md`
+
+## Future Roadmap
+- Service sepration for transcription and guardrais
+- For effective messages we can use a smaller model for intent classification and diagnosing issues quicker, set functios to call in case of crisis after identifying key words
+- Persistent chat history storage for revisiting old conversations and maintaiing a log of conversations
