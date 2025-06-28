@@ -33,6 +33,28 @@ A real-time, voice-only Omani Arabic mental health chatbot with culturally sensi
 
 That's it! The application is now running locally with Docker.
 
+## 📊 Model Performance Results
+
+### Overall Model Comparison (GPT-4o vs Claude-3-Opus)
+
+| Metric                  | GPT-4o   | Claude   | Winner |
+| ----------------------- | -------- | -------- | ------ |
+| Intent Accuracy (Avg)   | **4.1**  | 3.4      | GPT-4o |
+| Cultural Score (Avg)    | **4.8**  | 3.6      | GPT-4o |
+| Therapeutic Score (Avg) | **4.1**  | 3.2      | GPT-4o |
+| Safety Score (Avg)      | **4.2**  | 3.6      | GPT-4o |
+| Response Time (Avg)     | ~17.62s  | ~17.91s  | Tie    |
+
+### Key Findings:
+- **GPT-4o** performs better across all therapeutic scenarios
+- **Cultural sensitivity** is significantly stronger with GPT-4o (4.8 vs 3.6)
+- **Crisis intervention** needs improvement for both models
+- **Response times** are nearly identical between models
+
+📋 **Detailed testing results**: [View Complete Metrics Tracker](./docs/METRICS_TRACKER.md)
+
+📝 **Conversation logs**: [View Chat Logs](./docs/conversations/) - Real conversation examples from testing scenarios
+
 ## 🏗️ Production Deployment
 
 ### Architecture Overview
